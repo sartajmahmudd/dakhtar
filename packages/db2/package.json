@@ -1,0 +1,41 @@
+{
+  "name": "@dakthar/db2",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint .",
+    "push": "drizzle-kit push:mysql",
+    "studio": "drizzle-kit studio",
+    "db:pull": "drizzle-kit introspect:mysql",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@planetscale/database": "^1.11.0",
+    "drizzle-orm": "^0.29.0"
+  },
+  "devDependencies": {
+    "@dakthar/eslint-config": "0.1.0",
+    "@dakthar/prettier-config": "0.1.0",
+    "@dakthar/tsconfig": "0.1.0",
+    "dotenv-cli": "^7.2.1",
+    "drizzle-kit": "^0.20.6",
+    "eslint": "^8.53.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.2.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@dakthar/eslint-config/base"
+    ],
+    "rules": {
+      "no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": "warn"
+    }
+  },
+  "prettier": "@dakthar/prettier-config"
+}

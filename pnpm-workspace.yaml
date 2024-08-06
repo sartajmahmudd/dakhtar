@@ -1,0 +1,7 @@
+packages:
+  - apps/web
+  - apps/emailer
+  - apps/cloudfns
+  - packages/*
+  - packages/firekit/*
+  - tooling/*

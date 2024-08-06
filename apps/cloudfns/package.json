@@ -1,0 +1,26 @@
+{
+  "name": "@dakthar/cloudfns",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "git clean -xdf .dist .turbo node_modules",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "deploy": "firebase deploy --only functions",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@dakthar/eslint-config": "^0.1.0",
+    "@dakthar/prettier-config": "0.1.0",
+    "@dakthar/tsconfig": "0.1.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@dakthar/eslint-config/base"
+    ]
+  },
+  "prettier": "@dakthar/prettier-config"
+}

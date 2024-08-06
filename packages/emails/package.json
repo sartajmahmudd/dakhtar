@@ -1,0 +1,32 @@
+{
+  "name": "@dakthar/emails",
+  "version": "0.1.0",
+  "main": "./index.tsx",
+  "types": "./index.tsx",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint .",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-email/components": "0.0.6",
+    "@react-email/render": "0.0.7",
+    "@react-email/tailwind": "0.0.8"
+  },
+  "devDependencies": {
+    "@dakthar/eslint-config": "0.1.0",
+    "@dakthar/prettier-config": "0.1.0",
+    "@dakthar/tsconfig": "0.1.0",
+    "eslint": "^8.53.0",
+    "typescript": "^5.2.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@dakthar/eslint-config/base"
+    ]
+  },
+  "prettier": "@dakthar/prettier-config"
+}

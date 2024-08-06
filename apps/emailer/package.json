@@ -1,0 +1,48 @@
+{
+  "name": "@dakthar/emailer",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm with-env next build",
+    "clean": "git clean -xdf .next .turbo node_modules",
+    "dev:email": "pnpm with-env next dev -- --port 8000",
+    "lint": "dotenv -v SKIP_ENV_VALIDATION=1 next lint",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "start:email": "pnpm with-env next start",
+    "typecheck": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@dakthar/api": "^0.1.0",
+    "@dakthar/db": "^0.1.0",
+    "@dakthar/emails": "^0.1.0",
+    "next": "^13.4.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@dakthar/eslint-config": "0.1.0",
+    "@dakthar/prettier-config": "0.1.0",
+    "@dakthar/tailwind-config": "0.1.0",
+    "@dakthar/tsconfig": "0.1.0",
+    "@types/node": "^18.16.0",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "autoprefixer": "^10.4.14",
+    "daisyui": "^3.0.20",
+    "dotenv-cli": "^7.2.1",
+    "eslint": "^8.53.0",
+    "postcss": "^8.4.26",
+    "tailwindcss": "3.3.5",
+    "typescript": "^5.2.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@dakthar/eslint-config/base",
+      "@dakthar/eslint-config/nextjs",
+      "@dakthar/eslint-config/react"
+    ]
+  },
+  "prettier": "@dakthar/prettier-config"
+}

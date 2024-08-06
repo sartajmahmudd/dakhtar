@@ -1,0 +1,13 @@
+{
+  "extends": "@dakthar/tsconfig/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "strict": true,
+    "outDir": "./dist"
+  },
+  "exclude": ["functions", "dist"],
+  "include": ["src", "*.ts"]
+}

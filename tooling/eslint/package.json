@@ -1,0 +1,35 @@
+{
+  "name": "@dakthar/eslint-config",
+  "version": "0.1.0",
+  "license": "MIT",
+  "files": [
+    "./base.js",
+    "./nextjs.js",
+    "./react.js"
+  ],
+  "dependencies": {
+    "@next/eslint-plugin-next": "^13.4.10",
+    "@types/eslint": "^8.44.7",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-turbo": "^1.10.7",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  },
+  "devDependencies": {
+    "@dakthar/prettier-config": "0.1.0",
+    "@dakthar/tsconfig": "0.1.0",
+    "eslint": "^8.53.0",
+    "typescript": "^5.2.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "./base.js"
+    ]
+  },
+  "prettier": "@dakthar/prettier-config"
+}

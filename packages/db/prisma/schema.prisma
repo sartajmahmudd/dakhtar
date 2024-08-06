@@ -1,0 +1,389 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
+}
+
+enum AppointmentType {
+    IN_PERSON
+    ONLINE
+}
+
+enum AppointmentStatus {
+    PENDING
+    CONFIRMED
+    CANCELLED
+    COMPLETED
+}
+
+enum AppointmentPurpose {
+    CONSULTATION
+    FOLLOW_UP
+    SHOW_REPORT
+}
+
+model DiagnosisSuggestion {
+    id   Int    @id @default(autoincrement())
+    name String
+}
+
+model MedicineSuggestion {
+    id         Int     @id @default(autoincrement())
+    name       String
+    dosageForm String
+    generic    String?
+    strength   String?
+}
+
+model Medicine {
+    id                     Int                   @id @default(autoincrement())
+    name                   String
+    dosage                 String
+    remarks                String?
+    prescriptionId         Int
+    prescription           Prescription          @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+    prescriptionTemplate   PrescriptionTemplate? @relation(fields: [prescriptionTemplateId], references: [id])
+    prescriptionTemplateId Int?
+
+    @@index([prescriptionId])
+    @@index([prescriptionTemplateId])
+}
+
+model Prescription {
+    id            Int         @id @default(autoincrement())
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+    complaint     String      @db.Text
+    findings      String?     @db.Text
+    diagnosis     String?     @db.Text
+    followUp      DateTime?
+    advice        String?     @db.Text
+    visitSummary  String?     @db.Text
+    layout        Json?
+    medicine      Medicine[]
+    appointmentId Int         @unique
+    appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+    patientId     Int
+    patient       Patient     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+    doctorId      Int
+    doctor        Doctor      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+    @@index([appointmentId])
+    @@index([patientId])
+    @@index([doctorId])
+}
+
+model PrescriptionLayout {
+    id                     Int          @id @default(autoincrement())
+    showLogo               Boolean      @default(true)
+    showDrInfo             Boolean      @default(true)
+    headerPanel            Int          @default(15)
+    logoPanel              Int          @default(50)
+    drInfoPanel            Int          @default(50)
+    patientInfoPanel       Int          @default(3)
+    patientInfoLeftPanel   Int          @default(25)
+    patientNamePanel       Int          @default(25)
+    patientInfoRightPanel  Int          @default(25)
+    mainBodyPanel          Int          @default(60)
+    mainBodyLeftPanel      Int          @default(25)
+    mainBodyLeftUpperPanel Int          @default(25)
+    mainBodyLeftLowerPanel Int          @default(75)
+    rxPanel                Int          @default(45)
+    advicePanel            Int          @default(20)
+    extraPanel             Int          @default(15)
+    extraLeftPanel         Int          @default(20)
+    extraDrInfoPanel       Int          @default(80)
+    showDrInfoExtraPanel   Boolean      @default(false)
+    organization           Organization @relation(fields: [organizationId], references: [id])
+    organizationId         Int          @unique
+
+    @@index([organizationId])
+}
+
+model PrescriptionTemplate {
+    id        Int        @id @default(autoincrement())
+    name      String
+    complaint String     @db.Text
+    findings  String?    @db.Text
+    diagnosis String?    @db.Text
+    advice    String?    @db.Text
+    followUp  DateTime?
+    medicine  Medicine[]
+    doctorId  Int
+    doctor    Doctor     @relation(fields: [doctorId], references: [id])
+
+    @@index([doctorId])
+}
+
+model Appointment {
+    id             Int                @id @default(autoincrement())
+    createdAt      DateTime           @default(now())
+    updatedAt      DateTime           @updatedAt
+    doctorId       Int
+    doctor         Doctor             @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+    patientId      Int
+    patient        Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+    organizationId Int?
+    organization   Organization?      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    serialNo       Int                @default(0)
+    type           AppointmentType    @default(IN_PERSON)
+    status         AppointmentStatus  @default(PENDING)
+    purpose        AppointmentPurpose @default(CONSULTATION)
+    bookedBy       Role               @default(PATIENT)
+    notified       Boolean            @default(false)
+    fee            Float
+    date           DateTime
+    time           String
+    location       String?
+    prescription   Prescription?
+
+    @@index([doctorId], name: "doctorId")
+    @@index([patientId], name: "patientId")
+    @@index([organizationId], name: "organizationId")
+}
+
+model DoctorAvailability {
+    id         Int            @id @default(autoincrement())
+    createdAt  DateTime       @default(now())
+    updatedAt  DateTime       @updatedAt
+    doctorId   Int
+    doctor     Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+    dayOfWeek  DayOfWeek
+    metadataId Int
+    metadata   DoctorMetadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+    startHour  String // HH:MM:SS
+    endHour    String // HH:MM:SS
+
+    @@index([doctorId], name: "doctorId")
+    @@index([metadataId], name: "metadataId")
+}
+
+model DoctorMetadata {
+    id                    Int                  @id @default(autoincrement())
+    createdAt             DateTime             @default(now())
+    updatedAt             DateTime             @updatedAt
+    doctorId              Int
+    doctor                Doctor               @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+    location              String
+    consultationFee       Float                @default(0)
+    followUpFee           Float                @default(0)
+    showReportFee         Float                @default(0)
+    followUpFeeValidity   Int?
+    showReportFeeValidity Int?
+    availabilities        DoctorAvailability[]
+
+    @@index([doctorId], name: "doctorId")
+}
+
+model DoctorSpeciality {
+    doctorId     Int
+    doctor       Doctor     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+    specialityId Int
+    speciality   Speciality @relation(fields: [specialityId], references: [id])
+    isPrimary    Boolean    @default(false)
+
+    @@id([doctorId, specialityId], name: "doctorId_specialityId")
+    @@index([doctorId], name: "doctorId")
+    @@index([specialityId], name: "specialityId")
+}
+
+model Speciality {
+    id      Int                @id @default(autoincrement())
+    name    String             @unique
+    slug    String             @unique
+    doctors DoctorSpeciality[]
+}
+
+model DoctorAdmin {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    doctorId  Int
+    doctor    Doctor   @relation(fields: [doctorId], references: [id])
+    adminId   Int
+    admin     Admin    @relation(fields: [adminId], references: [id])
+
+    @@index([doctorId], name: "doctorId")
+    @@index([adminId], name: "adminId")
+}
+
+model OrganizationAdmin {
+    id             Int          @id @default(autoincrement())
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    organizationId Int
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    adminId        Int
+    admin          Admin        @relation(fields: [adminId], references: [id])
+
+    @@unique([organizationId, adminId], name: "organizationId_adminId")
+    @@index([organizationId], name: "organizationId")
+    @@index([adminId], name: "adminId")
+}
+
+model OrganizationPatient {
+    id             Int          @id @default(autoincrement())
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    organizationId Int
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    patientId      Int
+    patient        Patient      @relation(fields: [patientId], references: [id])
+
+    @@unique([organizationId, patientId], name: "organizationId_patientId")
+    @@index([organizationId], name: "organizationId")
+    @@index([patientId], name: "patientId")
+}
+
+model OrganizationDoctor {
+    id             Int          @id @default(autoincrement())
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    organizationId Int
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    doctorId       Int
+    doctor         Doctor       @relation(fields: [doctorId], references: [id])
+
+    @@unique([organizationId, doctorId], name: "organizationId_doctorId")
+    @@index([organizationId], name: "organizationId")
+    @@index([doctorId], name: "doctorId")
+}
+
+model DoctorQualification {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    doctorId  Int
+    doctor    Doctor   @relation(fields: [doctorId], references: [id])
+    name      String
+    degree    String
+    institute String
+    year      Int
+
+    @@index([doctorId], name: "doctorId")
+}
+
+model Doctor {
+    id                   Int                    @id @default(autoincrement())
+    secondId             String                 @unique @default(cuid())
+    slug                 String                 @unique @db.VarChar(120)
+    userId               Int                    @unique
+    user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt            DateTime               @default(now())
+    updatedAt            DateTime               @updatedAt
+    specialities         DoctorSpeciality[]
+    bio                  String                 @db.Text
+    verified             Boolean                @default(false)
+    availabilities       DoctorAvailability[]
+    metadata             DoctorMetadata[]
+    appointments         Appointment[]
+    admins               DoctorAdmin[]
+    organizations        OrganizationDoctor[]
+    prescription         Prescription[]
+    qualifications       DoctorQualification[]
+    qrCode               String?                @db.Text
+    prescriptionTemplate PrescriptionTemplate[]
+
+    @@index([slug], name: "slug")
+}
+
+model Patient {
+    id            Int                   @id @default(autoincrement())
+    secondId      String                @unique @default(cuid())
+    userId        Int                   @unique
+    user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt     DateTime              @default(now())
+    updatedAt     DateTime              @updatedAt
+    appointments  Appointment[]
+    organizations OrganizationPatient[]
+    Prescription  Prescription[]
+}
+
+model Admin {
+    id            Int                 @id @default(autoincrement())
+    createdAt     DateTime            @default(now())
+    updatedAt     DateTime            @updatedAt
+    userId        Int                 @unique
+    user          User                @relation(fields: [userId], references: [id])
+    organizations OrganizationAdmin[]
+    doctors       DoctorAdmin[]
+
+    @@index([userId], name: "userId")
+}
+
+model Organization {
+    id                 Int                   @id @default(autoincrement())
+    createdAt          DateTime              @default(now())
+    updatedAt          DateTime              @updatedAt
+    name               String
+    slug               String                @unique
+    image              String?               @db.Text
+    doctors            OrganizationDoctor[]
+    patients           OrganizationPatient[]
+    admins             OrganizationAdmin[]
+    Appointment        Appointment[]
+    PrescriptionLayout PrescriptionLayout[]
+
+    @@index([slug], name: "slug")
+}
+
+model User {
+    id          Int              @id @default(autoincrement())
+    createdAt   DateTime         @default(now())
+    updatedAt   DateTime         @updatedAt
+    secondId    String           @unique @default(cuid())
+    firebaseId  String           @default("")
+    name        String?
+    image       String?
+    phone       String?
+    email       String?
+    dateOfBirth DateTime?
+    gender      Gender           @default(MALE)
+    onboarding  OnboardingStatus @default(NOT_STARTED)
+    role        Role             @default(ANONYMOUS)
+    doctor      Doctor?
+    patient     Patient?
+    admin       Admin?
+
+    @@index([secondId], name: "secondId")
+    @@index([firebaseId], name: "firebaseId")
+    @@index([phone], name: "phone")
+    @@index([role], name: "role")
+}
+
+enum DayOfWeek {
+    Mon
+    Tue
+    Wed
+    Thu
+    Fri
+    Sat
+    Sun
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+}
+
+enum Role {
+    ANONYMOUS
+    PATIENT
+    DOCTOR
+    ADMIN
+    SUPER_ADMIN // * dakthar.com admin
+}
+
+enum OnboardingStatus {
+    NOT_STARTED
+    IN_PROGRESS
+    COMPLETED
+}
